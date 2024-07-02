@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- Page Title -->
+    <title>Anita | Contacts</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@600;800&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+    <!-- Template Config -->
+    <link type="text/css" rel="stylesheet" href="css/config.css">
+    <!-- Libraries -->
+    <link type="text/css" rel="stylesheet" href="css/libs.css">
+    <!-- Template Styles -->
+    <link type="text/css" rel="stylesheet" href="css/style.css">
+    <!-- Responsive -->
+    <link type="text/css" rel="stylesheet" href="css/responsive.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="img/favicon.png" sizes="32x32" />
+</head>
+<body>
+
+    <!-- Page Background -->
+    <div class="anita-page-background-wrap">
+        <div class="anita-page-background" data-src="img/background/contacts.jpg" data-opacity="0.05"></div>
+    </div>
+
+    <!-- Page Main -->
+    <main class="anita-main">
+
+        <!-- Page Container -->
+		<div class="anita-container half-top-spacing half-bottom-spacing">
+
+            <!-- Page Title -->
+            <section class="anita-section anita-bottom-gap--medium">
+                <h1 class="anita-page-title" data-aos="fade-up">Reveal Yourself</h1>
+            </section>
+
+            <!-- Section: Content -->
+            <section class="anita-section">
+				<div class="anita-grid anita-grid--33-66 anita-grid--tablet-2cols">
+
+                    <!-- Contact Form -->
+					<div class="anita-contact-form-wrap" data-aos="fade-left" data-aos-delay="200">
+                        <form action="https://uxoempkimhhbxolk7n52jq6oom0ayqnw.lambda-url.ap-south-1.on.aws/" method="post" class="anita-contact-form" data-fill-error="Please provide credentials.">
+                            <div class="anita-grid anita-grid-small-gap anita-grid--2cols anita-grid--tablet-1col">
+                                <input type="password" id="username" name="username" placeholder="Username" required>
+                                <input type="password" id="password" name="password" placeholder="Password" required>
+                            </div><!-- .anita-grid -->
+                            <div class="anita-contact-form__footer">
+								<div class="anita-contact-form__submit">
+									<input type="submit" value="Login">
+								</div>
+                                <div class="anita-contact-form__response"></div>
+                            </div>
+                        </form>
+					</div>
+				</div><!-- .anita-grid -->
+			</section>
+		</div><!-- .anita-container -->
+	</main>
+
+    <!-- JS Scripts -->
+    <script src="js/lib/jquery.min.js"></script>
+    <script src="js/lib/aos.min.js"></script>
+    <script src="js/core.js"></script>
+    <script type="text/javascript">
+        const token = localStorage.getItem('token');
+        if (token !== null) {
+            window.location.href = 'home.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- Page Title -->
+    <title>Anita | Testimonials</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@600;800&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+    <!-- Template Config -->
+    <link type="text/css" rel="stylesheet" href="css/config.css">
+    <!-- Libraries -->
+    <link type="text/css" rel="stylesheet" href="css/libs.css">
+    <!-- Template Styles -->
+    <link type="text/css" rel="stylesheet" href="css/style.css">
+    <!-- Responsive -->
+    <link type="text/css" rel="stylesheet" href="css/responsive.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="img/favicon.png" sizes="32x32" />
+</head>
+<body>
+<!-- Header -->
+<header id="anita-header" class="anita-header">
+    <div class="anita-header-inner">
+        <div class="anita-menu-wrapper">
+            <!-- Menu Toggle Button -->
+            <a href="#" class="anita-menu-toggler">
+                <i class="anita-menu-toggler-icon"></i>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Fullscreen Menu -->
+<div class="anita-fullscreen-menu-wrap">
+    <nav class="anita-nav anita-js-menu"></nav>
+</div>
+
+<!-- Page Background -->
+<div class="anita-page-background-wrap">
+    <div class="anita-page-background" data-src="img/background/testimonials.jpg" data-opacity="0.07"></div>
+</div>
+
+<!-- Page Main -->
+<main class="anita-main">
+
+    <!-- Page Container -->
+    <div class="anita-container">
+
+        <!-- Section: Get in Touch  -->
+        <section class="anita-section">
+            <div class="anita-cta" data-aos="fade-up">
+                <h2>
+                    Upload our awesome photos!
+                </h2>
+                <input type="file" id="fileInput" multiple>
+                <div class="anita-caption">
+                    <button type="button" id="uploadButton">Upload</button>
+                </div>
+                <div id="progress"></div>
+            </div><!-- .anita-cta -->
+        </section>
+    </div><!-- .anita-container -->
+</main>
+
+<!-- JS Scripts -->
+<script src="js/lib/jquery.min.js"></script>
+<script src="js/lib/aos.min.js"></script>
+<script src="js/core.js"></script>
+<script type="text/javascript">
+    (() => {
+        const token = localStorage.getItem('token');
+        if (token === null) {
+            window.location.href = 'auth.html';
+            return;
+        }
+
+
+        $('#uploadButton').on('click', function() {
+            const files = $('#fileInput')[0].files;
+
+            if (files.length === 0) {
+                alert('Please select files to upload.');
+                return;
+            }
+
+            // Loop through each file and get a signed URL for each
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    if (file.type.startsWith('image/')) {
+                        const img = new Image();
+                        img.src = e.target.result;
+                        img.onload = function() {
+                            const width = this.width;
+                            const height = this.height;
+                            const filename = newFilename(file.name, width, height);
+                            getSignedUrlAndUpload(filename, file);
+                        };
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    })();
+
+    function newFilename(filename, width, height) {
+        const originalFilename = filename;
+        const extensionIndex = originalFilename.lastIndexOf('.');
+        const baseName = originalFilename.substring(0, extensionIndex);
+        const extension = originalFilename.substring(extensionIndex);
+        const substringToAdd = '_' + width + 'x' + height;
+        return baseName + substringToAdd + extension;
+    }
+
+    function getSignedUrlAndUpload(filename, file) {
+        // Request a signed URL from the server
+        $.ajax({
+            url: 'https://c2cg43yzdu7lm6iex5podxln5u0lbcdb.lambda-url.ap-south-1.on.aws/',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ filename: filename }),
+            headers: {
+                'token': localStorage.getItem('token')
+            },
+            success: function(data) {
+                uploadFile(file, data.url);
+            },
+            error: function(error) {
+                console.error('Error getting signed URL:', error);
+                if (error.responseText === 'invalid token') {
+                    window.location.href = 'logout.html';
+                }
+            }
+        });
+    }
+
+    function uploadFile(file, signedUrl) {
+        $.ajax({
+            url: signedUrl,
+            type: 'PUT',
+            contentType: file.type,
+            processData: false,
+            data: file,
+            xhr: function() {
+                const xhr = $.ajaxSettings.xhr();
+                if (xhr.upload) {
+                    xhr.upload.addEventListener('progress', function(event) {
+                        if (event.lengthComputable) {
+                            const percentComplete = Math.round((event.loaded / event.total) * 100);
+                            $('#progress').text('Upload progress: ' + percentComplete + '%');
+                        }
+                    }, false);
+                }
+                return xhr;
+            },
+            success: function() {
+                console.log('File uploaded successfully:', file.name);
+                $('#progress').append('<p>' + file.name + ' uploaded successfully.</p>');
+            },
+            error: function(error) {
+                console.error('Error uploading file:', file.name, error);
+                $('#progress').append('<p>Error uploading ' + file.name + '.</p>');
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

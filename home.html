@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- Page Title -->
+    <title>Anita | When You Love</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@600;800&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+    <!-- Template Config -->
+    <link type="text/css" rel="stylesheet" href="css/config.css">
+    <!-- Libraries -->
+    <link type="text/css" rel="stylesheet" href="css/libs.css">
+    <!-- Template Styles -->
+    <link type="text/css" rel="stylesheet" href="css/style.css">
+    <!-- Responsive -->
+    <link type="text/css" rel="stylesheet" href="css/responsive.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="img/favicon.png" sizes="32x32" />
+</head>
+<body>
+    <!-- Header -->
+    <header id="anita-header" class="anita-header">
+        <div class="anita-header-inner">
+            <div class="anita-menu-wrapper">
+                <!-- Menu Toggle Button -->
+                <a href="#" class="anita-menu-toggler">
+                    <i class="anita-menu-toggler-icon"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Fullscreen Menu -->
+    <div class="anita-fullscreen-menu-wrap">
+        <nav class="anita-nav anita-js-menu"></nav>
+    </div>
+
+    <!-- Page Background -->
+    <div class="anita-page-background-wrap">
+        <div class="anita-page-background" data-src="img/albums/covers_1920/album07_1920.jpg" data-opacity="0.05"></div>
+    </div>
+
+    <!-- Page Main -->
+    <main class="anita-main">
+
+        <!-- Page Container -->
+		<div class="anita-container">
+
+            <!-- Page Content -->
+            <section class="anita-section">
+                <div class="anita-bricks-grid anita-bricks-2x3 anita-zoom-hover anita-item-zoom-hover anita-item-fade-hover" id="all-photos">
+                </div><!-- .anita-works-grid -->
+			</section>
+		</div><!-- .anita-container -->
+	</main>
+
+    <!-- Footer -->
+    <footer id="anita-footer">
+        <div class="anita-footer-inner">
+            <div class="anita-copyright anita-js-copyright"></div>
+            <div class="anita-socials anita-js-socials"></div>
+        </div>
+    </footer>
+
+    <!-- JS Scripts -->
+    <script src="js/lib/jquery.min.js"></script>
+    <script src="js/lib/aos.min.js"></script>
+    <script src="js/core.js"></script>
+    <script type="text/javascript">
+        let lastPage = 1;
+        let allLoaded = false;
+        (() => {
+            let reachedBottom = false;
+            const token = localStorage.getItem('token');
+            if (token === null) {
+                window.location.href = 'auth.html';
+                return;
+            }
+            fetchPage();
+            $(window).on('scroll', () => {
+                let fromBottom = document.documentElement.scrollHeight - (window.pageYOffset + window.innerHeight);
+                if (reachedBottom === false && fromBottom < 50) {
+                    console.log('Reached bottom');
+                    reachedBottom = true;
+                    fetchPage();
+                } else if (reachedBottom && fromBottom > 100) {
+                    reachedBottom = false;
+                }
+            });
+        })();
+
+        function addImage(id, url, width, height) {
+            $("#all-photos").append(`<div class="anita-grid-gallery-item" data-aos="fade-up" data-aos-delay="100">
+                        <div class="anita-grid-item__inner">
+                            <div class="anita-grid-item__image">
+                                <img id="${id}" src="${url}" class="anita-lazy" data-src="${url}" alt="Photo 10" width="${width}" height="${height}">
+                            </div>
+                            <a href="${url}" target="_blank" class="anita-lightbox-link" data-size="${width}x${height}"></a>
+                        </div>
+                    </div>`);
+        }
+
+        function addVideo(url, size) {
+            $("#main-div").append(`<div class="anita-gl-gallery-item is-video" data-src="${url}" data-size="${size}"></div>`);
+        }
+
+        function fetchPage() {
+            if (allLoaded) {
+                return;
+            }
+            $.ajax({
+                url: 'https://icbsndgigmc7jpcr3gacpa2s440spdto.lambda-url.ap-south-1.on.aws/',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ page: lastPage, maxKeys: 8 }),
+                headers: {
+                    'token': localStorage.getItem('token')
+                },
+                success: function(data) {
+                    console.log("data length", data.data.length);
+                    if (data.data.length === 0) {
+                        allLoaded = true;
+                        return;
+                    }
+                    $.each(data.data, (i, d) => {
+                        const size = getSize(d.name);
+                        addImage(d.name, d.url, size[0], size[1]);
+                        if (!anita.lazyLoader) {
+                            anita.lazyLoader = new Anita_Lazy();
+                        }
+                        anita.lazyLoader.addItem(document.getElementById(d.name));
+                    });
+                    lastPage++;
+                },
+                error: function(error) {
+                    console.error('Error getting signed URL:', error);
+                    if (error.responseText === 'invalid token') {
+                        window.location.href = 'logout.html';
+                    }
+
+                }
+            });
+        }
+
+        function getSize(filepath) {
+            const underscoreIndex = filepath.lastIndexOf('_');
+            const extensionIndex = filepath.lastIndexOf('.');
+            return filepath.substring(underscoreIndex + 1, extensionIndex).split('x');
+        }
+    </script>
+</body>
+</html>
