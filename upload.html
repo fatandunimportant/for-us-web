@@ -147,6 +147,10 @@
     }
 
     function uploadFile(file, signedUrl) {
+        if (signedUrl === '') {
+            $('#progress').html('<p> Uploaded ' + ++uploadedCount + '/' + toUpload + '</p>');
+            return;
+        }
         $.ajax({
             url: signedUrl,
             type: 'PUT',
